@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Logo, FormRow, Alert } from "../components";
 import Wrapper from "../assets/wrappers/RegisterPage";
+import { useAppContext } from "../context/appContext";
 
 const Register = () => {
   const initialState = {
@@ -8,7 +9,6 @@ const Register = () => {
     email: "",
     password: "",
     isMember: true,
-    isShowAlert: false,
   };
 
   const [values, setValues] = useState(initialState);
@@ -17,16 +17,35 @@ const Register = () => {
     setValues({ ...values, isMember: !values.isMember });
   };
 
-  const handleChange = () => {};
+  const { isLoading, showAlert, displayAlerts, registerUser } = useAppContext();
 
-  const handleSubmit = () => {};
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const { name, email, password, isMember } = values;
+    if (!email || !password || (!isMember && !name)) {
+      displayAlerts();
+      return;
+    }
+
+    const user = { name, email, password };
+    if (isMember) {
+      console.log("User already a member");
+    } else {
+      registerUser(user);
+    }
+    console.log(values);
+  };
 
   return (
     <Wrapper className="full-page">
       <form className="form" onSubmit={handleSubmit}>
         <Logo />
         <h3>{values.isMember ? "Login" : "Register"}</h3>
-        {values.isShowAlert && <Alert />}
+        {showAlert && <Alert />}
         {!values.isMember && (
           <FormRow
             type="text"
