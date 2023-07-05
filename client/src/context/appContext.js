@@ -6,18 +6,25 @@ import {
   USER_REGISTER_BEGIN,
   USER_REGISTER_SUCCESS,
   USER_REGISTER_ERROR,
+  USER_LOGIN_BEGIN,
+  USER_LOGIN_SUCCESS,
+  USER_LOGIN_ERROR,
 } from "./actions";
 import axios from "axios";
+
+const user = localStorage.getItem("user");
+const token = localStorage.getItem("token");
+const userLocation = localStorage.getItem("userLocation");
 
 const initialState = {
   isLoading: false,
   showAlert: false,
   alertText: "",
   alertType: "",
-  user: null,
-  token: null,
-  userLocation: "",
-  jobLocation:"",
+  user: user ? JSON.parse("user") : null,
+  token: token ? token : null,
+  userLocation: userLocation || "",
+  jobLocation: userLocation || "",
 };
 
 const AppContext = React.createContext();
@@ -36,6 +43,18 @@ const AppProvider = ({ children }) => {
     }, 3000);
   };
 
+  const saveOnLocalStorage = ({ user, token, location }) => {
+    localStorage.setItem("user", JSON.stringify(user));
+    localStorage.setItem("token", token);
+    localStorage.setItem("location", location);
+  };
+
+  const removeOnLocalStorage = () => {
+    localStorage.clear("user");
+    localStorage.clear("token");
+    localStorage.clear("location");
+  };
+
   const registerUser = async (currentUser) => {
     dispatch({ type: USER_REGISTER_BEGIN });
     try {
@@ -51,15 +70,47 @@ const AppProvider = ({ children }) => {
           location,
         },
       });
+      saveOnLocalStorage({ user, token, location });
     } catch (error) {
       console.log(error.response);
-      dispatch({type: USER_REGISTER_ERROR,payload:{msg:error.response.data.msg}})
+      dispatch({
+        type: USER_REGISTER_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+      removeOnLocalStorage();
     }
-    clearAlert()
+    clearAlert();
+  };
+
+  const loginUser = async (currentUser) => {
+    dispatch({ type: USER_LOGIN_BEGIN });
+    try {
+      const response = await axios.post("/api/v1/auth/login", currentUser);
+      const { user, token, location } = response.data;
+
+      dispatch({
+        type: USER_LOGIN_SUCCESS,
+        payload: {
+          user,
+          token,
+          location,
+        },
+      });
+      saveOnLocalStorage({ user, token, location });
+    } catch (error) {
+      console.log(error.response);
+      dispatch({
+        type: USER_LOGIN_ERROR,
+        payload: { msg: error.response.data.msg },
+      });
+      removeOnLocalStorage();
+    }
   };
 
   return (
-    <AppContext.Provider value={{ ...state, displayAlerts, registerUser }}>
+    <AppContext.Provider
+      value={{ ...state, displayAlerts, registerUser, loginUser }}
+    >
       {children}
     </AppContext.Provider>
   );
