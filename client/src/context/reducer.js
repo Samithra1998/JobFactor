@@ -9,6 +9,9 @@ import {
   USER_LOGIN_ERROR,
   TOGGLE_SIDEBAR,
   LOGOUT_USER,
+  USER_UPDATE_BEGIN,
+  USER_UPDATE_SUCCESS,
+  USER_UPDATE_ERROR,
 } from "./actions";
 import { initialState } from "./appContext";
 
@@ -91,15 +94,41 @@ const reducer = (state, action) => {
       showSidebar: !state.showSidebar,
     };
   }
-  if(action.type === LOGOUT_USER) {
+  if (action.type === LOGOUT_USER) {
     return {
       ...initialState,
       user: null,
       token: null,
       jobLocation: null,
-      userLocation: null
-    }
+      userLocation: null,
+    };
   }
+  if (action.type === USER_UPDATE_BEGIN) {
+    return { ...state, isLoading: true };
+  }
+  if (action.type === USER_UPDATE_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      user: action.payload.user,
+      userLocation: action.payload.location,
+      jobLocation: action.payload.location,
+      token: action.payload.token,
+      showAlert: true,
+      alertType: "success",
+      alertText: "Update Successfully!",
+    };
+  }
+  if (action.type === USER_UPDATE_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
+
   throw new Error(`No such action : ${action.type}`);
 };
 

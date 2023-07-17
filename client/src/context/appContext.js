@@ -11,12 +11,15 @@ import {
   USER_LOGIN_ERROR,
   TOGGLE_SIDEBAR,
   LOGOUT_USER,
+  USER_UPDATE_BEGIN,
+  USER_UPDATE_ERROR,
+  USER_UPDATE_SUCCESS,
 } from "./actions";
 import axios from "axios";
 
 const user = localStorage.getItem("user");
 const token = localStorage.getItem("token");
-const userLocation = localStorage.getItem("userLocation");
+const userLocation = localStorage.getItem("location");
 
 const initialState = {
   isLoading: false,
@@ -28,6 +31,14 @@ const initialState = {
   userLocation: userLocation || "",
   jobLocation: userLocation || "",
   showSidebar: false,
+  isEditing:false,
+  editJobId:'',
+  position:'',
+  company:'',
+  jobTypeOptions:["full-time", "part-time", "internship"],
+  jobType:'internship',
+  statusOptions:["interview", "declined", "pending"],
+  status:'pending'
 };
 
 const AppContext = React.createContext();
@@ -39,6 +50,42 @@ const AppProvider = ({ children }) => {
     dispatch({ type: DISPLAY_ALERT });
     clearAlert();
   };
+
+  //globally setup axios
+  // axios.defaults.headers.common['Authorization'] = `Bearer ${state.token}`
+
+  //custom instance method for bearer token
+  const authFetch = axios.create({
+    baseURL: "/api/v1",
+    headers: {
+      Authorization: `Bearer ${state.token}`,
+    },
+  });
+
+  // //request
+  // authFetch.interceptors.request.use(
+  //   (config) => {
+  //     config.headers.common["Authorization"] = `Bearer ${state.token}`;
+  //     return config;
+  //   },
+  //   (error) => {
+  //     return Promise.reject(error);
+  //   }
+  // );
+
+  // //response
+  // authFetch.interceptors.response.use(
+  //   (response) => {
+
+  //     return response;
+  //   },
+  //   (error) => {
+  //     if(error.response.status === 401) {
+  //       console.log('Auth error');
+  //     }
+  //     return Promise.reject(error);
+  //   }
+  // );
 
   const clearAlert = () => {
     setTimeout(() => {
@@ -52,7 +99,7 @@ const AppProvider = ({ children }) => {
 
   const logoutUser = () => {
     removeOnLocalStorage();
-    dispatch({type: LOGOUT_USER})
+    dispatch({ type: LOGOUT_USER });
   };
 
   const saveOnLocalStorage = ({ user, token, location }) => {
@@ -117,6 +164,38 @@ const AppProvider = ({ children }) => {
       });
       removeOnLocalStorage();
     }
+    clearAlert()
+  };
+
+  const updateUser = async (currentUser) => {
+    dispatch({ type: USER_UPDATE_BEGIN });
+    try {
+      const { data } = await authFetch.patch("/auth/updateuser", currentUser);
+      const { user, token, location } = data;
+
+      dispatch({
+        type: USER_UPDATE_SUCCESS,
+        payload: {
+          user,
+          token,
+          location,
+        },
+      });
+      saveOnLocalStorage({ user, token, location });
+      console.log(data);
+    } catch (error) {
+      if (error.response.status !== 401) {
+        dispatch({
+          type: USER_UPDATE_ERROR,
+          payload: {
+            msg: error.response.data.msg,
+          },
+        });
+      }
+
+      removeOnLocalStorage();
+    }
+    clearAlert();
   };
 
   return (
@@ -128,6 +207,7 @@ const AppProvider = ({ children }) => {
         loginUser,
         toggleSidebar,
         logoutUser,
+        updateUser,
       }}
     >
       {children}
