@@ -6,7 +6,7 @@ const AddJob = () => {
   const handleJobInput = (e) => {
     const name = e.target.name;
     const value = e.target.value;
-    console.log(`${name} ${value}`);
+    handleChange({ name, value });
   };
 
   const handleSubmit = (e) => {
@@ -14,10 +14,12 @@ const AddJob = () => {
     if (!position || !company) {
       return displayAlerts();
     }
+    createJob();
     console.log("Job created");
   };
   const {
     showAlert,
+    isLoading,
     displayAlerts,
     company,
     position,
@@ -27,6 +29,9 @@ const AddJob = () => {
     statusOptions,
     status,
     isEditing,
+    handleChange,
+    clearValues,
+    createJob,
   } = useAppContext();
   return (
     <Wrapper>
@@ -67,8 +72,21 @@ const AddJob = () => {
             labelText="Job Type"
           />
           <div className="btn-container">
-            <button type="submit" className="btn btn-block submit-btn">
+            <button
+              type="submit"
+              className="btn btn-block submit-btn"
+              disabled={isLoading}
+            >
               Submit
+            </button>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                clearValues();
+              }}
+              className="btn btn-block clear-btn"
+            >
+              Clear
             </button>
           </div>
         </div>
