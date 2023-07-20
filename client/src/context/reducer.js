@@ -12,6 +12,13 @@ import {
   USER_UPDATE_BEGIN,
   USER_UPDATE_SUCCESS,
   USER_UPDATE_ERROR,
+  HANDLE_CHANGE,
+  CLEAR_VALUES,
+  CREATE_JOB_BEGIN,
+  CREATE_JOB_SUCCESS,
+  CREATE_JOB_ERROR,
+  GET_JOBS_BEGIN,
+  GET_JOBS_SUCCESS,
 } from "./actions";
 import { initialState } from "./appContext";
 
@@ -126,6 +133,71 @@ const reducer = (state, action) => {
       showAlert: true,
       alertType: "danger",
       alertText: action.payload.msg,
+    };
+  }
+  if (action.type === HANDLE_CHANGE) {
+    return {
+      ...state,
+      [action.payload.name]: action.payload.value,
+    };
+  }
+  if (action.type === CLEAR_VALUES) {
+    const initialValues = {
+      isEditing: false,
+      editJobId: "",
+      position: "",
+      company: "",
+      jobLocation: state.jobLocation,
+      jobType: "internship",
+      status: "pending",
+    };
+    return {
+      ...state,
+      ...initialValues,
+    };
+  }
+  if (action.type === CREATE_JOB_BEGIN) {
+    return { ...state, isLoading: true };
+  }
+  if (action.type === CREATE_JOB_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      // position: action.payload.position,
+      // company: action.payload.company,
+      // jobLocation: action.payload.jobLocation,
+      // jobType: action.payload.jobType,
+      // status: action.payload.status,
+      // token: action.payload.token,
+      showAlert: true,
+      alertType: "success",
+      alertText: "Job Created Successfully!",
+    };
+  }
+  if (action.type === CREATE_JOB_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
+  if (action.type === GET_JOBS_BEGIN) {
+    return {
+      ...state,
+      isLoading: true,
+      showAlert: false,
+    };
+  }
+  if (action.type === GET_JOBS_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      jobs: action.payload.jobs,
+      noOfPages: action.payload.noOfPages,
+      totalJobs: action.payload.totalJobs,
     };
   }
 
