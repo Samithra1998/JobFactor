@@ -19,6 +19,15 @@ import {
   CREATE_JOB_ERROR,
   GET_JOBS_BEGIN,
   GET_JOBS_SUCCESS,
+  SET_EDIT_JOB,
+  DELETE_JOB_BEGIN,
+  DELETE_JOB_SUCCESS,
+  EDIT_JOB_BEGIN,
+  EDIT_JOB_SUCCESS,
+  EDIT_JOB_ERROR,
+  STAT_JOB_BEGIN,
+  STAT_JOB_SUCCESS,
+  STAT_JOB_ERROR,
 } from "./actions";
 import { initialState } from "./appContext";
 
@@ -201,6 +210,77 @@ const reducer = (state, action) => {
     };
   }
 
+  if (action.type === SET_EDIT_JOB) {
+    const job = state.jobs.find((job) => job._id === action.payload.id);
+    const { _id, position, company, status, jobType, jobLocation } = job;
+    return {
+      ...state,
+      isEditing: true,
+      editJobId: _id,
+      position,
+      company,
+      jobType,
+      status,
+      jobLocation,
+    };
+  }
+  if (action.type === DELETE_JOB_BEGIN) {
+    return {
+      ...state,
+      isLoading: true,
+    };
+  }
+  // if (action.type === DELETE_JOB_SUCCESS) {
+  //   return {
+  //     ...state,
+  //     showAlert: true,
+  //     alertType: "success",
+  //     alertText: action.payload.msg,
+  //   };
+  // }
+
+  if (action.type === EDIT_JOB_BEGIN) {
+    return { ...state, isLoading: true };
+  }
+  if (action.type === EDIT_JOB_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      isEditing: true,
+      showAlert: true,
+      alertType: "success",
+      alertText: "Update Successfully!",
+    };
+  }
+  if (action.type === EDIT_JOB_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
+  if (action.type === STAT_JOB_BEGIN) {
+    return { ...state, isLoading: true };
+  }
+  if (action.type === STAT_JOB_SUCCESS) {
+    return {
+      ...state,
+      isLoading: false,
+      stats: action.payload.stats,
+      monthlyApplications: action.payload.monthlyApplications,
+    };
+  }
+  if (action.type === STAT_JOB_ERROR) {
+    return {
+      ...state,
+      isLoading: false,
+      showAlert: true,
+      alertType: "danger",
+      alertText: action.payload.msg,
+    };
+  }
   throw new Error(`No such action : ${action.type}`);
 };
 
