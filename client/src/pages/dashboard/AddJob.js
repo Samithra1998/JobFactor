@@ -14,8 +14,11 @@ const AddJob = () => {
     if (!position || !company) {
       return displayAlerts();
     }
-    createJob();
-    console.log("Job created");
+    if (isEditing) {
+      editJob();
+    } else {
+      createJob();
+    }
   };
   const {
     showAlert,
@@ -32,6 +35,7 @@ const AddJob = () => {
     handleChange,
     clearValues,
     createJob,
+    editJob,
   } = useAppContext();
   return (
     <Wrapper>
