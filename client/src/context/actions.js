@@ -36,3 +36,5 @@ export const EDIT_JOB_ERROR = "EDIT_JOB_ERROR";
 export const STAT_JOB_BEGIN = "STAT_JOB_BEGIN";
 export const STAT_JOB_SUCCESS = "STAT_JOB_SUCCESS";
 export const STAT_JOB_ERROR = "STAT_JOB_ERROR";
+
+export const CLEAR_FILTERS = "CLEAR_FILTERS";
