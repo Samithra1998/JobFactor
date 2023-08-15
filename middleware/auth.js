@@ -3,12 +3,18 @@ import jwt from "jsonwebtoken";
 
 const Auth = async (req, res, next) => {
   const authHeaders = req.headers.authorization;
+  console.log(req.cookies);
 
-  if (!authHeaders || !authHeaders.startsWith("Bearer")) {
-    throw new UnAuthenticatedError("Authorization failed");
+  const token = req.cookies.token;
+  if (!token) {
+    throw new UnAuthenticatedError("Authorization failed!");
   }
 
-  const token = authHeaders.split(" ")[1];
+  // if (!authHeaders || !authHeaders.startsWith("Bearer")) {
+  //   throw new UnAuthenticatedError("Authorization failed");
+  // }
+
+  // const token = authHeaders.split(" ")[1];
 
   try {
     const payload = jwt.verify(token, process.env.JWT_SECRET);
