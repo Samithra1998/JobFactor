@@ -28,6 +28,10 @@ import {
   STAT_JOB_BEGIN,
   STAT_JOB_SUCCESS,
   STAT_JOB_ERROR,
+  CLEAR_FILTERS,
+  CHANGE_PAGE,
+  GET_CURRENT_USER_BEGIN,
+  GET_CURRENT_USER_SUCCESS,
 } from "./actions";
 import { initialState } from "./appContext";
 
@@ -62,7 +66,6 @@ const reducer = (state, action) => {
       showAlert: true,
       alertType: "success",
       user: action.payload.user,
-      token: action.payload.token,
       userLocation: action.payload.location,
       jobLocation: action.payload.location,
     };
@@ -89,7 +92,6 @@ const reducer = (state, action) => {
       user: action.payload.user,
       userLocation: action.payload.location,
       jobLocation: action.payload.location,
-      token: action.payload.token,
       showAlert: true,
       alertType: "success",
       alertText: "Login Successfully!",
@@ -113,10 +115,7 @@ const reducer = (state, action) => {
   if (action.type === LOGOUT_USER) {
     return {
       ...initialState,
-      user: null,
-      token: null,
-      jobLocation: null,
-      userLocation: null,
+      userLoading: false,
     };
   }
   if (action.type === USER_UPDATE_BEGIN) {
@@ -129,7 +128,6 @@ const reducer = (state, action) => {
       user: action.payload.user,
       userLocation: action.payload.location,
       jobLocation: action.payload.location,
-      token: action.payload.token,
       showAlert: true,
       alertType: "success",
       alertText: "Update Successfully!",
@@ -147,6 +145,7 @@ const reducer = (state, action) => {
   if (action.type === HANDLE_CHANGE) {
     return {
       ...state,
+      page: 1,
       [action.payload.name]: action.payload.value,
     };
   }
@@ -279,6 +278,37 @@ const reducer = (state, action) => {
       showAlert: true,
       alertType: "danger",
       alertText: action.payload.msg,
+    };
+  }
+  if (action.type === CLEAR_FILTERS) {
+    return {
+      ...state,
+      search: "",
+      searchStatus: "all",
+      searchType: "all",
+      sort: "latest",
+    };
+  }
+  if (action.type === CHANGE_PAGE) {
+    return {
+      ...state,
+      page: action.payload.page,
+    };
+  }
+  if (action.type === GET_CURRENT_USER_BEGIN) {
+    return {
+      ...state,
+      userLoading: true,
+      showAlert: false,
+    };
+  }
+  if (action.type === GET_CURRENT_USER_SUCCESS) {
+    return {
+      ...state,
+      user: action.payload.user,
+      userLoading: false,
+      userLocation: action.payload.location,
+      jobLocation: action.payload.location,
     };
   }
   throw new Error(`No such action : ${action.type}`);
